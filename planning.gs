@@ -5,6 +5,13 @@ var jiraLink = "=HYPERLINK(\"https://hootsuite.atlassian.net/browse/"
 var colIssueType, colSummary, colIssueKey, colParentLink
 var initiativesMap = []
 var destinationSheetHeaderRows = 2
+var productAccelerationInit = "SSF: Performant & Reliable Product Experience"
+var productAccelerationDelivable = "Strong Social Foundation (SSF)"
+var priority = "Top 30%"
+var effort = "X-Large"
+var start = "Q3 '19"
+var end = "Q4 '19"
+var owner = "Lei Guo"
 
 function onOpen() {
   var menuEntries = [{name: "Sync Bets", functionName: "syncBets"}, {name: "Collapse Bets", functionName: "collapseBets"}, {name: "Expand Bets", functionName: "expandBets"}];
@@ -56,12 +63,12 @@ function flushInitiatives(rawData){
 
     for(var i = 1; i < rawData.length; i++){
       if(rawData[i][colIssueType].toString().toLowerCase() == "initiative"){
-        values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")']);
+        values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', "", productAccelerationInit, productAccelerationDelivable, priority, effort, start, end, owner]);
         initiativesMap.push({issuekey:rawData[i][colIssueKey], summary:rawData[i][colSummary]})
       }
     }
     if(values != undefined && values.length > 0) {
-      destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setValues(values);
+      destinationSheet.getRange(destinationSheet.getLastRow()+1, values[0].length, values.length, values[0].length).setValues(values);
       SpreadsheetApp.flush();  
     }
 }
@@ -86,6 +93,7 @@ function flushEPICs(rawData){
           values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")']);
           destinationSheet.getRange(parentRow+1, 1, 1, 1).setValues(values);
           destinationSheet.getRange(parentRow+1, 1, 1, 1).shiftRowGroupDepth(1)
+          destinationSheet.getRange(parentRow+1, 1, 1, 1).setFontSize(8);
         }
       }
     }
