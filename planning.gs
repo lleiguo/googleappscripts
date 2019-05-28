@@ -2,12 +2,12 @@ var ss = SpreadsheetApp.getActiveSpreadsheet();
 var sourceSheet = ss.getSheetByName("POD 2019 EPICs and Initiatives (Jira)")
 var destinationSheet = ss.getSheetByName("POD")
 var jiraLink = "=HYPERLINK(\"https://hootsuite.atlassian.net/browse/"
-var colIssueType, colSummary, colIssueKey, colParentLink
+var colIssueType, colSummary, colIssueKey, colParentLink, colDescription, colPriority
 var initiativesMap = []
 var destinationSheetHeaderRows = 2
 var productAccelerationInit = "SSF: Performant & Reliable Product Experience"
 var productAccelerationDelivable = "Strong Social Foundation (SSF)"
-var priority = "Top 30%"
+var priorities = [{priority: "Blocker", prio: "Top 30%"}, {priority: "Critical", prio: "Mid 30%"}, {priority: "Major", prio: "Bottom 30%"}];
 var effort = "X-Large"
 var start = "Q3 '19"
 var end = "Q4 '19"
@@ -44,6 +44,8 @@ function populateDestinationSheet() {
   colSummary = rawData[0].indexOf("Summary");
   colIssueKey = rawData[0].indexOf("Issue key")
   colParentLink = rawData[0].indexOf("Custom field (Parent Link)")
+  colDescription = rawData[0].indexOf("Description")
+  colPriority = rawData[0].indexOf("Priority")
   
   //Delete everything except top two header rows
   if(destinationSheet.getLastRow() > destinationSheetHeaderRows) {
@@ -51,7 +53,7 @@ function populateDestinationSheet() {
   }
   
   //Only proceed when all column exist
-  if(colIssueType != -1 && colSummary != -1 && colIssueKey != -1 && colParentLink != -1){
+  if(colIssueType != -1 && colSummary != -1 && colIssueKey != -1 && colParentLink != -1 && colPriority != -1){
     flushInitiatives(rawData)
     flushEPICs(rawData)
     collapseBets()
@@ -63,12 +65,15 @@ function flushInitiatives(rawData){
 
     for(var i = 1; i < rawData.length; i++){
       if(rawData[i][colIssueType].toString().toLowerCase() == "initiative"){
-        values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', "", productAccelerationInit, productAccelerationDelivable, priority, effort, start, end, owner]);
-        initiativesMap.push({issuekey:rawData[i][colIssueKey], summary:rawData[i][colSummary]})
+        var priority = priorities.filter(function (prio) { return prio.priority === rawData[i][colPriority]})
+        if(priority != undefined && priority.length == 1){
+          values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', "", productAccelerationInit, productAccelerationDelivable, priority[0].prio, effort, "", start, end, owner]);
+          initiativesMap.push({issuekey:rawData[i][colIssueKey], summary:rawData[i][colSummary]})
+        }
       }
     }
     if(values != undefined && values.length > 0) {
-      destinationSheet.getRange(destinationSheet.getLastRow()+1, values[0].length, values.length, values[0].length).setValues(values);
+      destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setValues(values);
       SpreadsheetApp.flush();  
     }
 }
