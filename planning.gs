@@ -21,7 +21,8 @@ function onOpen() {
 function syncBets() {
   var sheets = ss.getSheets();
   if( sourceSheet == null || destinationSheet == null) {
-    exit;
+    SpreadsheetApp.getUi().alert("No source sheet present!");
+    return
   }
 
   //Loop through source sheet and populate the destination sheet
@@ -49,7 +50,7 @@ function populateDestinationSheet() {
   
   //Delete everything except top two header rows
   if(destinationSheet.getLastRow() > destinationSheetHeaderRows) {
-    destinationSheet.deleteRows(3, destinationSheet.getLastRow()-destinationSheetHeaderRows)
+    destinationSheet.getRange(destinationSheetHeaderRows+1, 1, destinationSheet.getLastRow()-1, destinationSheet.getLastColumn()).clear()
   }
   
   //Only proceed when all column exist
@@ -93,14 +94,26 @@ function flushEPICs(rawData){
               break
             }
           }
-          destinationSheet = destinationSheet.insertRowAfter(parentRow)
-          var values = []
-          values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")']);
-          destinationSheet.getRange(parentRow+1, 1, 1, 1).setValues(values);
-          destinationSheet.getRange(parentRow+1, 1, 1, 1).shiftRowGroupDepth(1)
-          destinationSheet.getRange(parentRow+1, 1, 1, 1).setFontSize(8);
+          if(parentRow >= destinationSheetHeaderRows) {
+            var group = destinationSheet.getRowGroupAt(parentRow, 1)
+            //Add a row to the bottom of group
+            var groupSize = group.getRange() != undefined ? group.getRange().getNumRows() : 0
+            destinationSheet = destinationSheet.insertRowAfter(parentRow+groupSize)
+            var values = []
+            var priority = getPriority(rawData[i][colPriority])
+            if(priority != undefined && priority.length == 1){
+              values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', "", productAccelerationInit, productAccelerationDelivable, priority[0].prio, effort, "", start, end, owner]);
+              destinationSheet.getRange(parentRow+1, 1, values.length, values[0].length).setValues(values);
+              destinationSheet.getRange(parentRow+1, 1, 1, 1).shiftRowGroupDepth(1)
+              destinationSheet.getRange(parentRow+1, 1, 1, 1).setFontSize(8);
+            }
+          }
         }
       }
     }
     SpreadsheetApp.flush();  
+}
+
+function getPriority(name){
+  priorities.filter(function (prio) { return prio.priority === rawData[i][colPriority]})
 }
