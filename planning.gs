@@ -50,7 +50,7 @@ function populateDestinationSheet() {
   
   //Delete everything except top two header rows
   if(destinationSheet.getLastRow() > destinationSheetHeaderRows) {
-    destinationSheet.getRange(destinationSheetHeaderRows+1, 1, destinationSheet.getLastRow()-1, destinationSheet.getLastColumn()).clear()
+    destinationSheet.deleteRows(destinationSheetHeaderRows+1, destinationSheet.getLastRow()-destinationSheetHeaderRows)
   }
   
   //Only proceed when all column exist
@@ -95,10 +95,10 @@ function flushEPICs(rawData){
             }
           }
           if(parentRow >= destinationSheetHeaderRows) {
-            var group = destinationSheet.getRowGroupAt(parentRow, 1)
+            //var group = destinationSheet.getRowGroupAt(parentRow, 1)
             //Add a row to the bottom of group
-            var groupSize = group.getRange() != undefined ? group.getRange().getNumRows() : 0
-            destinationSheet = destinationSheet.insertRowAfter(parentRow+groupSize)
+            //var groupSize = group.getRange() != undefined ? group.getRange().getNumRows() : 0
+            destinationSheet = destinationSheet.insertRowAfter(parentRow)
             var values = []
             var priority = getPriority(rawData[i][colPriority])
             if(priority != undefined && priority.length == 1){
@@ -115,5 +115,5 @@ function flushEPICs(rawData){
 }
 
 function getPriority(name){
-  priorities.filter(function (prio) { return prio.priority === rawData[i][colPriority]})
+  priorities.filter(function (prio) { return prio.priority === name})
 }
