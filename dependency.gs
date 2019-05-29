@@ -1,7 +1,7 @@
 var ss = SpreadsheetApp.getActiveSpreadsheet();
 var dependencyName = "Dept / Portfolio Dependencies"
 
-var portfolios = ["Engage", "P+C", "Measure", "PIF", "Product Growth", "Promote"];
+var portfolios = ["Engage", "P+C", "Measure", "PIF", "Product Growth", "Promote", "Platform"];
 var dependencies = ["Engage", "Plan+Create", "Measure", "PIF", "Product Growth", "Promote", "POD", "Platform", "Security"];
 
 function onOpen() {
