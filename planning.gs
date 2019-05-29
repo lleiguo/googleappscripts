@@ -57,6 +57,8 @@ function populateDestinationSheet() {
   if(colIssueType != -1 && colSummary != -1 && colIssueKey != -1 && colParentLink != -1 && colPriority != -1){
     flushInitiatives(rawData)
     flushEPICs(rawData)
+    destinationSheet.setFrozenColumns(1);
+
     collapseBets()
   }
 }
