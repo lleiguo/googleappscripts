@@ -6,7 +6,7 @@ var dependencyType = ["Bet Type", "Bet Dependency Type"]
 var dependency = "Dependency Tl;Dr (or details or Bet IDs for dependent bets)"
 var unlikely = ["Unlikely in H2?", "Unlikely in H2"]
 
-var portfolios = ["Engage", "P+C", "Measure", "PIF", "Product Growth", "Promote", "Platform"];
+var portfolios = ["Product Growth", "Promote", "Platform", "Measure", "PIF", "Engage", "P+C"];
 var dependencies = ["Engage", "Plan+Create", "Measure", "PIF", "Product Growth", "Promote", "POD", "Platform", "Security"];
 
 function onOpen() {
@@ -40,11 +40,12 @@ function findDependencies(portfolio) {
   var values = [];
     
   //Get dependency column
-  var colDependencyName = rawData[1].indexOf(dependencyName[0]) || rawData[1].indexOf(dependencyName[1]);
-  var colPriority = rawData[1].indexOf(priority)
-  var colDependencyType = rawData[1].indexOf(dependencyType[0]) || rawData[1].indexOf(dependencyType[1])
-  var colDependency = rawData[1].indexOf(dependency)
-  var colUnlikely = rawData[1].indexOf(unlikely[0]) || rawData[1].indexOf(unlikely[1])
+  
+  colDependencyName = Math.max(rawData[1].indexOf(dependencyName[0]), rawData[1].indexOf(dependencyName[1]));
+  colPriority = rawData[1].indexOf(priority)
+  colDependencyType = Math.max(rawData[1].indexOf(dependencyType[0]), rawData[1].indexOf(dependencyType[1]))
+  colDependency = rawData[1].indexOf(dependency)
+  colUnlikely = Math.max(rawData[1].indexOf(unlikely[0]), rawData[1].indexOf(unlikely[1]))
   
   if (colDependencyName != -1 && colPriority != -1 && colDependencyType != -1 && colDependency != -1 && colUnlikely != -1) {
     for(var i = 2; i < rawData.length; i++){
@@ -56,7 +57,8 @@ function findDependencies(portfolio) {
       }
     }
   }else{
-    SpreadsheetApp.getUi().alert("One of the required column is missing");
+    SpreadsheetApp.getUi().alert(portfolio +":" + rawData[1].indexOf(dependencyName[0]) +":" + rawData[1].indexOf(dependencyName[1]) + ":" + colDependencyName);
+    SpreadsheetApp.getUi().alert(portfolio +":" + rawData[1].indexOf(dependencyType[0]) +":" + rawData[1].indexOf(dependencyType[1]) + ":" + colDependencyType);
   }
   
   if(values != undefined && values.length > 0) {
