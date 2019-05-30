@@ -6,7 +6,7 @@ var dependencyType = ["Bet Type", "Bet Dependency Type"]
 var dependency = "Dependency Tl;Dr (or details or Bet IDs for dependent bets)"
 var unlikely = ["Unlikely in H2?", "Unlikely in H2"]
 
-var portfolios = ["Product Growth", "Promote", "Platform", "Measure", "PIF", "Engage", "P+C"];
+var portfolios = ["POD", "Product Growth", "Promote", "Platform", "Measure", "PIF", "Engage", "P+C"];
 var dependencies = ["Engage", "Plan+Create", "Measure", "PIF", "Product Growth", "Promote", "POD", "Platform", "Security"];
 
 function onOpen() {
@@ -23,7 +23,7 @@ function updateDependency() {
   dependencySheet = ss.insertSheet(dependencyName[0]);
   
   var values = [];
-  values.push(["Portfolio", "Bet", "Depend On", priority, "Dependency Type", dependency, "Unlikely in H2"]);
+  values.push(["Portfolio", "Bet", "Dependency Type", "Dependency Portfolio", dependency, priority, "Unlikely in H2"]);
   dependencySheet.getRange(1, 1, 1, values[0].length).setValues(values);
   dependencySheet.getRange(1, 1, 1, values[0].length).setFontWeight("Bold");
   dependencySheet.setFrozenRows(1);
@@ -53,7 +53,7 @@ function findDependencies(portfolio) {
         break;
       }
       if(rawData[i][colDependencyName] != undefined && rawData[i][colDependencyName].length > 0 && rawData[i][colDependencyName].toString().toLowerCase() != "n/a"){
-        values.push([portfolio, rawData[i][0], rawData[i][colDependencyName], rawData[i][colPriority], rawData[i][colDependencyType], rawData[i][colDependency], rawData[i][colUnlikely]]);
+        values.push([portfolio, rawData[i][0],  rawData[i][colDependencyType], rawData[i][colDependencyName], rawData[i][colDependency], rawData[i][colPriority], rawData[i][colUnlikely]]);
       }
     }
   }else{
