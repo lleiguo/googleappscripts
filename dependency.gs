@@ -57,8 +57,7 @@ function findDependencies(portfolio) {
       }
     }
   }else{
-    SpreadsheetApp.getUi().alert(portfolio +":" + rawData[1].indexOf(dependencyName[0]) +":" + rawData[1].indexOf(dependencyName[1]) + ":" + colDependencyName);
-    SpreadsheetApp.getUi().alert(portfolio +":" + rawData[1].indexOf(dependencyType[0]) +":" + rawData[1].indexOf(dependencyType[1]) + ":" + colDependencyType);
+    SpreadsheetApp.getUi().alert(portfolio +": has a missing column");
   }
   
   if(values != undefined && values.length > 0) {
