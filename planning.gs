@@ -57,8 +57,6 @@ function populateDestinationSheet() {
   if(colIssueType != -1 && colSummary != -1 && colIssueKey != -1 && colParentLink != -1 && colPriority != -1){
     flushInitiatives(rawData)
     flushEPICs(rawData)
-    destinationSheet.setFrozenColumns(1);
-
     collapseBets()
   }
 }
@@ -70,13 +68,15 @@ function flushInitiatives(rawData){
       if(rawData[i][colIssueType].toString().toLowerCase() == "initiative"){
         var priority = priorities.filter(function (prio) { return prio.priority === rawData[i][colPriority]})
         if(priority != undefined && priority.length == 1){
-          values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', "", productAccelerationInit, productAccelerationDelivable, priority[0].prio, effort, "", start, end, owner]);
+          values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', rawData[i][colIssueKey], "", productAccelerationInit, productAccelerationDelivable, priority[0].prio, effort, "", "", "", "", start, end, owner]);
           initiativesMap.push({issuekey:rawData[i][colIssueKey], summary:rawData[i][colSummary]})
         }
       }
     }
     if(values != undefined && values.length > 0) {
       destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setValues(values);
+      destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setFontSize(10);
+      destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setFontWeight("Bold");
       SpreadsheetApp.flush();  
     }
 }
@@ -96,26 +96,22 @@ function flushEPICs(rawData){
               break
             }
           }
-          if(parentRow >= destinationSheetHeaderRows) {
+          if(parentRow > destinationSheetHeaderRows) {
             //var group = destinationSheet.getRowGroupAt(parentRow, 1)
             //Add a row to the bottom of group
             //var groupSize = group.getRange() != undefined ? group.getRange().getNumRows() : 0
             destinationSheet = destinationSheet.insertRowAfter(parentRow)
             var values = []
-            var priority = getPriority(rawData[i][colPriority])
+            var priority = priorities.filter(function (prio) { return prio.priority === rawData[i][colPriority]})
             if(priority != undefined && priority.length == 1){
-              values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', "", productAccelerationInit, productAccelerationDelivable, priority[0].prio, effort, "", start, end, owner]);
+              values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', rawData[i][colIssueKey], '', productAccelerationInit, productAccelerationDelivable, priority[0].prio, effort, '', '', '', "", start, end, owner]);
               destinationSheet.getRange(parentRow+1, 1, values.length, values[0].length).setValues(values);
-              destinationSheet.getRange(parentRow+1, 1, 1, 1).shiftRowGroupDepth(1)
-              destinationSheet.getRange(parentRow+1, 1, 1, 1).setFontSize(8);
+              destinationSheet.getRange(parentRow+1, 1, 1, values[0].length).shiftRowGroupDepth(1)
+              destinationSheet.getRange(parentRow+1, 1, 1, values[0].length).setFontSize(8);
             }
           }
         }
       }
     }
     SpreadsheetApp.flush();  
-}
-
-function getPriority(name){
-  priorities.filter(function (prio) { return prio.priority === name})
 }
