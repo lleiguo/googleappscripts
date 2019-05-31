@@ -1,13 +1,13 @@
-var ss = SpreadsheetApp.getActiveSpreadsheet();
-var dependencyName = ["Dept / Portfolio Dependency", "Dept / Portfolio Dependencies"]
-var priority = "Priority for Portfolio"
-var effort = "Effort / Estimate"
-var dependencyType = ["Bet Type", "Bet Dependency Type"]
-var dependency = "Dependency Tl;Dr (or details or Bet IDs for dependent bets)"
-var unlikely = ["Unlikely in H2?", "Unlikely in H2"]
+const ss = SpreadsheetApp.getActiveSpreadsheet();
+const dependencyName = ["Dept / Portfolio Dependency", "Dept / Portfolio Dependencies"]
+const priority = "Priority for Portfolio"
+const effort = "Effort / Estimate"
+const dependencyType = ["Bet Type", "Bet Dependency Type"]
+const dependency = "Dependency Tl;Dr (or details or Bet IDs for dependent bets)"
+const unlikely = ["Unlikely in H2?", "Unlikely in H2"]
 
-var portfolios = ["POD", "Product Growth", "Promote", "Platform", "Measure", "PIF", "Engage", "P+C"];
-var dependencies = ["Engage", "Plan+Create", "Measure", "PIF", "Product Growth", "Promote", "POD", "Platform", "Security"];
+const portfolios = ["POD", "Product Growth", "Promote", "Platform", "Measure", "PIF", "Engage", "P+C"];
+const dependencies = ["Engage", "Plan+Create", "Measure", "PIF", "Product Growth", "Promote", "POD", "Platform", "Security"];
 
 function onOpen() {
   var menuEntries = [{name: "Update Dependency", functionName: "updateDependency"}];
