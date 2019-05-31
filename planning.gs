@@ -1,6 +1,6 @@
 var ss = SpreadsheetApp.getActiveSpreadsheet();
-var sourceSheet = ss.getSheetByName("POD 2019 EPICs and Initiatives (Jira)")
-var destinationSheet = ss.getSheetByName("POD")
+var sourceSheet = ss.getSheetByName("POD_2019_Scope")
+var destinationSheet = ss.getSheetByName("EXP")
 var jiraLink = "=HYPERLINK(\"https://hootsuite.atlassian.net/browse/"
 var colIssueType, colSummary, colIssueKey, colParentLink, colDescription, colPriority
 var initiativesMap = []
@@ -8,9 +8,7 @@ var destinationSheetHeaderRows = 2
 var productAccelerationInit = "SSF: Performant & Reliable Product Experience"
 var productAccelerationDelivable = "Strong Social Foundation (SSF)"
 var priorities = [{priority: "Blocker", prio: "Top 30%"}, {priority: "Critical", prio: "Mid 30%"}, {priority: "Major", prio: "Bottom 30%"}];
-var effort = "X-Large"
-var start = "Q3 '19"
-var end = "Q4 '19"
+var priorities = [{team: "PCRE", owner: "Alister West"}, {team: "PCP", prio: "Matt Moore"}, {team: "PBTD", prio: "Matt Moore"}];
 var owner = "Lei Guo"
 
 function onOpen() {
@@ -41,12 +39,12 @@ function populateDestinationSheet() {
   var rawData = sourceSheet.getDataRange().getValues();
     
   //Get dependency column
-  colIssueType = rawData[0].indexOf("Issue Type");
-  colSummary = rawData[0].indexOf("Summary");
+  colIssueType = rawData[0].indexOf("Hierarchy");
+  colSummary = rawData[0].indexOf("Title");
   colIssueKey = rawData[0].indexOf("Issue key")
-  colParentLink = rawData[0].indexOf("Custom field (Parent Link)")
-  colDescription = rawData[0].indexOf("Description")
-  colPriority = rawData[0].indexOf("Priority")
+  colEffort = rawData[0].indexOf("Story Points")
+  colStart = rawData[0].indexOf("Scheduled start")
+  colEnd = rawData[0].indexOf("Scheduled end")
   
   //Delete everything except top two header rows
   if(destinationSheet.getLastRow() > destinationSheetHeaderRows) {
@@ -54,65 +52,28 @@ function populateDestinationSheet() {
   }
   
   //Only proceed when all column exist
-  if(colIssueType != -1 && colSummary != -1 && colIssueKey != -1 && colParentLink != -1 && colPriority != -1){
+  if(colIssueType != -1 && colSummary != -1 && colIssueKey != -1 && colEffort != -1 && colStart != -1 && colEnd != -1){
     flushInitiatives(rawData)
-    flushEPICs(rawData)
     destinationSheet.setFrozenColumns(1);
     collapseBets()
   }
 }
 
 function flushInitiatives(rawData){
-    var values = [];
-
-    for(var i = 1; i < rawData.length; i++){
-      if(rawData[i][colIssueType].toString().toLowerCase() == "initiative"){
-        var priority = priorities.filter(function (prio) { return prio.priority === rawData[i][colPriority]})
-        if(priority != undefined && priority.length == 1){
-          values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', rawData[i][colIssueKey], "", productAccelerationInit, productAccelerationDelivable, priority[0].prio, effort, "", "", "", "", start, end, owner]);
-          initiativesMap.push({issuekey:rawData[i][colIssueKey], summary:rawData[i][colSummary]})
-        }
-      }
-    }
-    if(values != undefined && values.length > 0) {
-      destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setValues(values);
-      destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setFontSize(10);
-      destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setFontWeight("Bold");
-      SpreadsheetApp.flush();  
-    }
-}
-
-function flushEPICs(rawData){
-
-    for(var i = 1; i < rawData.length; i++){
-      if(rawData[i][colIssueType].toString().toLowerCase() == "epic"){
-        destinationData = destinationSheet.getDataRange().getValues()
-        parentRow = -1
-        if ( rawData[i][colParentLink] != undefined && rawData[i][colParentLink].length > 0){
-          //Insert after parent initiative and start a group
-          for(var j = destinationSheetHeaderRows; j<destinationData.length;j++){
-            var parentInit = initiativesMap.filter(function (init){return init.issuekey === rawData[i][colParentLink]})
-            if(parentInit != undefined && parentInit.length == 1 && destinationData[j][0] == parentInit[0].summary ){ 
-              parentRow = j+1;
-              break
-            }
-          }
-          if(parentRow > destinationSheetHeaderRows) {
-            //var group = destinationSheet.getRowGroupAt(parentRow, 1)
-            //Add a row to the bottom of group
-            //var groupSize = group.getRange() != undefined ? group.getRange().getNumRows() : 0
-            destinationSheet = destinationSheet.insertRowAfter(parentRow)
-            var values = []
-            var priority = priorities.filter(function (prio) { return prio.priority === rawData[i][colPriority]})
-            if(priority != undefined && priority.length == 1){
-              values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', rawData[i][colIssueKey], '', productAccelerationInit, productAccelerationDelivable, priority[0].prio, effort, '', '', '', "", start, end, owner]);
-              destinationSheet.getRange(parentRow+1, 1, values.length, values[0].length).setValues(values);
-              destinationSheet.getRange(parentRow+1, 1, 1, values[0].length).shiftRowGroupDepth(1)
-              destinationSheet.getRange(parentRow+1, 1, 1, values[0].length).setFontSize(8);
-            }
-          }
-        }
+  for(var i = 1; i < rawData.length; i++){
+    var values = []
+    values.push([jiraLink + rawData[i][colIssueKey] + '", "' + rawData[i][colSummary] + '")', rawData[i][colIssueKey], "", productAccelerationInit, productAccelerationDelivable, "", rawData[i][colEffort], "", "", "", "", rawData[i][colStart], rawData[i][colEnd], owner]);
+    destinationSheet.getRange(destinationSheet.getLastRow()+1, 1, values.length, values[0].length).setValues(values);
+    if(rawData[i][colIssueType].toString().toLowerCase() == "initiative"){
+      destinationSheet.getRange(destinationSheet.getLastRow(), 1, 1, values[0].length).setFontSize(10);
+      destinationSheet.getRange(destinationSheet.getLastRow(), 1, 1, values[0].length).setFontWeight("Bold")
+      destinationSheet.getRange(destinationSheet.getLastRow(), 1, 1, values[0].length).shiftRowGroupDepth(-1)
+    }else if(rawData[i][colIssueType].toString().toLowerCase() == "epic"){
+      destinationSheet.getRange(destinationSheet.getLastRow(), 1, 1, values[0].length).setFontSize(8);
+      if(destinationSheet.getRowGroupDepth(destinationSheet.getLastRow()-1) == 0) {
+         destinationSheet.getRange(destinationSheet.getLastRow(), 1, 1, values[0].length).shiftRowGroupDepth(1)
       }
     }
     SpreadsheetApp.flush();  
+  }
 }
